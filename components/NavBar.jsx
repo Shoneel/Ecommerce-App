@@ -1,9 +1,19 @@
-import React from 'react'
+import React from "react";
+import Link from "next/link";
+import { AiOutlineShopping } from "react-icons/ai";
 
 const NavBar = () => {
   return (
-    <div>NavBar</div>
-  )
-}
+    <div className="navbar-container">
+      <p className="logo">
+        <Link href="/">Football Kits</Link>
+      </p>
+      <button type="button" className="cart-icon" onClick="">
+        <AiOutlineShopping />
+        <span className="cart-item-qty">5</span>
+      </button>
+    </div>
+  );
+};
 
-export default NavBar
+export default NavBar;

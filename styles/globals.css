@@ -283,7 +283,7 @@ span.text-red {
 .footer-container {
   color: #324d67;
   text-align: center;
-  margin-top: 20px;
+  margin-top: 80px;
   padding: 30px 10px;
   font-weight: 700;
   display: flex;
@@ -410,6 +410,9 @@ span.text-red {
   margin: 40px;
   margin-top: 60px;
   color: #324d67;
+  background-color: #ebebeb;
+  padding: 30px 30px;
+  border-radius: 15px;
 }
 
 .product-detail-image {
