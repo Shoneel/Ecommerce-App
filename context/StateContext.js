@@ -66,7 +66,7 @@ export const StateContext = ({ children }) => {
   };
 
   // Function to toggle the quantity of a cart item
-  const toggleCartItemQuanitity = (id, value) => {
+  const toggleCartItemQuantity = (id, value) => {
     foundProduct = cartItems.find((item) => item._id === id);
     index = cartItems.findIndex((product) => product._id === id);
     const newCartItems = cartItems.filter((item) => item._id !== id);
@@ -118,7 +118,7 @@ export const StateContext = ({ children }) => {
         incQty,
         decQty,
         onAdd,
-        toggleCartItemQuanitity,
+        toggleCartItemQuanitity: toggleCartItemQuantity,
         onRemove,
         setCartItems,
         setTotalPrice,
