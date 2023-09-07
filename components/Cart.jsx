@@ -14,52 +14,59 @@ import { urlFor } from "../lib/client";
 import getStripe from "../lib/getStripe";
 
 const Cart = () => {
+  // Create a reference to the cart container
   const cartRef = useRef();
+
+  // Access the state and functions from a context (e.g., a global state provider)
   const {
     totalPrice,
     totalQuantities,
     cartItems,
     setShowCart,
-    toggleCartItemQuantity,
-    onRemove,
+    toggleCartItemQuantity, // A function to increase/decrease item quantity
+    onRemove, // A function to remove an item from the cart
   } = useStateContext();
 
-  // Function to handle the checkout process
+  // Handle the checkout process when the "Pay with Stripe" button is clicked
   const handleCheckout = async () => {
-    // Fetch the Stripe instance
+    // Initialize Stripe with the client-side Stripe library
     const stripe = await getStripe();
 
-    // Send a request to your server to create a checkout session
+    // Send a POST request to your server with cart items
     const response = await fetch("/api/stripe", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(cartItems),
+      body: JSON.stringify(cartItems), // Convert cart items to JSON
     });
 
-    // Check if there's a server error
+    // Check if the server returns an error status
     if (response.statusCode === 500) return;
 
-    // Show loading toast while redirecting to checkout
+    // Parse the response JSON
+    const data = await response.json();
+
+    // Show a loading toast message
     toast.loading("Redirecting to checkout...");
 
-    // Redirect to the Stripe checkout page using the session ID
+    // Redirect to the Stripe checkout page using the session ID obtained from the server
     stripe.redirectToCheckout({ sessionId: data.id });
   };
 
+  // Render the shopping cart component
   return (
-    <div className="cart-wrapper">
+    <div className="cart-wrapper" ref={cartRef}>
       <div className="cart-container">
-        {/* Button to close the cart */}
+        {/* Header and title for the shopping cart */}
         <button
           type="button"
           className="cart-heading"
-          onClick={() => setShowCart(false)}
+          onClick={() => setShowCart(false)} // Close the cart when clicked
         >
           <AiOutlineLeft />
           <span className="heading">Your Cart</span>
-          <span className="cart-num-item">({totalQuantities} items)</span>
+          <span className="cart-num-items">({totalQuantities} items)</span>
         </button>
 
         {/* Displayed when the cart is empty */}
@@ -70,7 +77,7 @@ const Cart = () => {
             <Link href="/">
               <button
                 type="button"
-                onClick={() => setShowCart(false)}
+                onClick={() => setShowCart(false)} // Close the cart when clicked
                 className="btn"
               >
                 Continue Shopping
@@ -79,44 +86,49 @@ const Cart = () => {
           </div>
         )}
 
-        {/* Display cart items */}
+        {/* Display the list of products in the cart */}
         <div className="product-container">
           {cartItems.length >= 1 &&
             cartItems.map((item) => (
-              <div className="product" key={item.id}>
+              <div className="product" key={item._id}>
+                {/* Display the product image */}
                 <img
                   src={urlFor(item?.image[0])}
                   className="cart-product-image"
-                  alt=""
                 />
                 <div className="item-desc">
                   <div className="flex top">
+                    {/* Display the product name and price */}
                     <h5>{item.name}</h5>
-                    <h4>{item.price}</h4>
+                    <h4>${item.price}</h4>
                   </div>
                   <div className="flex bottom">
                     <div>
                       <p className="quantity-desc">
-                        {/* Buttons to adjust item quantity */}
+                        {/* Buttons to increase and decrease item quantity */}
                         <span
                           className="minus"
-                          onClick={() => toggleCartItemQuantity}
+                          onClick={() =>
+                            toggleCartItemQuantity(item._id, "dec")
+                          }
                         >
                           <AiOutlineMinus />
                         </span>
-                        <span className="num" onClick="">
-                          {item.quantity}
-                        </span>
+                        <span className="num">{item.quantity}</span>
                         <span
                           className="plus"
-                          onClick={() => toggleCartItemQuantity}
-                        ></span>
+                          onClick={() =>
+                            toggleCartItemQuantity(item._id, "inc")
+                          }
+                        >
+                          <AiOutlinePlus />
+                        </span>
                       </p>
                     </div>
-                    {/* Button to remove an item from the cart */}
+                    {/* Button to remove the item from the cart */}
                     <button
                       type="button"
-                      className="remove-btn"
+                      className="remove-item"
                       onClick={() => onRemove(item)}
                     >
                       <TiDeleteOutline />
@@ -127,15 +139,15 @@ const Cart = () => {
             ))}
         </div>
 
-        {/* Display subtotal and checkout button */}
+        {/* Display the subtotal and a button to initiate checkout */}
         {cartItems.length >= 1 && (
           <div className="cart-bottom">
             <div className="total">
-              <h3>Subtotal</h3>
+              <h3>Subtotal:</h3>
               <h3>${totalPrice}</h3>
             </div>
             <div className="btn-container">
-              {/* Button to initiate the checkout process */}
+              {/* Button to initiate the Stripe checkout process */}
               <button type="button" className="btn" onClick={handleCheckout}>
                 Pay with Stripe
               </button>
